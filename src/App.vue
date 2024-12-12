@@ -18,7 +18,7 @@ const colors = [
 
 let segments = reactive([])
 let currentRotation = 0
-let initialSegments = []
+// let initialSegments = []
 
 function createWheelGradient(participantCount) {
   const segmentAngle = 360 / participantCount
@@ -32,15 +32,18 @@ function createWheelGradient(participantCount) {
 }
 
 function spinWheel() {
-  const randomSegmentIndex = Math.floor(Math.random() * segments.length)
+  const randomSegmentIndex = Math.floor(Math.random() * segments.length + 1)
+  console.log('randomSegmentIndex', randomSegmentIndex)
+
   const segmentAngle = 360 / segments.length
-  const targetRotation = randomSegmentIndex * segmentAngle + 360 * 10 // 轉動至少 10 圈
+  const targetRotation = -(randomSegmentIndex * segmentAngle - segmentAngle / 2 - 360 * 10) //轉動至少 10 圈
   currentRotation += targetRotation
+  console.log((currentRotation - 20) % 3600)
 
   wheel.value.style.transform = `rotate(${currentRotation}deg)`
 
   setTimeout(() => {
-    const selectedSegment = segments[randomSegmentIndex]
+    const selectedSegment = segments[randomSegmentIndex - 1]
     alert(`選中：${selectedSegment.label}`)
     segments.splice(randomSegmentIndex, 1)
 
@@ -59,7 +62,7 @@ function resetGame() {
   spinButton.value.style.display = 'none'
   startGameButton.value.style.display = 'block'
   participantInput.value = ''
-  segments = [...initialSegments] // 恢復原始分片
+  segments.splice(0, segments.length) // 恢復原始分片
 }
 
 const start = () => {
@@ -68,15 +71,18 @@ const start = () => {
     alert('請輸入有效的參與人數 (2-8)')
     return
   }
-
-  const shuffledColors = [...colors].sort(() => Math.random() - 0.5).slice(0, participantCount)
-  initialSegments = shuffledColors.map((color, index) => {
-    segments.push({ color, label: `玩家 ${index + 1}` })
-  })
+  buildSegment(participantCount)
 
   createWheelGradient(participantCount)
   startGameButton.value.style.display = 'none'
   spinButton.value.style.display = 'block'
+}
+
+const buildSegment = (participantCount) => {
+  const shuffledColors = [...colors].sort(() => Math.random() - 0.5).slice(0, participantCount)
+  shuffledColors.forEach((color, index) => {
+    segments.push({ color, label: `玩家 ${index + 1}` })
+  })
 }
 </script>
 
