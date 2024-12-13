@@ -144,10 +144,6 @@ const confirm = () => {
 
 <template>
   <div>
-    <div>
-      <button @click="resetGame">重置</button>
-    </div>
-
     <span>輸入參與人數 (2-8)</span>
     <input
       type="number"
@@ -191,6 +187,9 @@ const confirm = () => {
     >
       轉動轉盤
     </button>
+    <div>
+      <button @click="resetGame">重置</button>
+    </div>
   </div>
   <div class="notify-container" v-if="notify.isShow">
     <div class="notify">
