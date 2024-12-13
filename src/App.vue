@@ -23,7 +23,6 @@ const buttonGroup = reactive({
 })
 
 let segments = reactive([])
-let currentRotation = 0
 
 const createWheelGradient = (participantCount) => {
   const segmentAngle = 360 / participantCount
@@ -45,9 +44,11 @@ const spinWheel = () => {
 
   const segmentAngle = 360 / segments.length
   const targetRotation = -(selectedPlayer * segmentAngle - segmentAngle / 2 - 360 * 10) //轉動至少 10 圈
-  currentRotation += targetRotation
+  console.log('segments', segments)
+  console.log('selectedPlayer,', selectedPlayer)
+  console.log('targetRotation,', targetRotation)
 
-  wheel.value.style.transform = `rotate(${currentRotation}deg)`
+  wheel.value.style.transform = `rotate(${targetRotation}deg)`
 
   setTimeout(() => {
     const segmentIndex = selectedPlayer - 1
@@ -57,6 +58,7 @@ const spinWheel = () => {
 
     if (segments.length > 1) {
       createWheelGradient(segments.length) // 更新輪盤
+      wheel.value.style.transform = `rotate(0deg)`
     } else {
       alert('遊戲結束！重新開始！')
       resetGame()
