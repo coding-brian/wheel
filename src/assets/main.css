@@ -1,13 +1,17 @@
 @import './base.css';
 body {
   font-family: Arial, sans-serif;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
   margin: 0;
 }
+
+#app {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+  align-items: center;
+}
+
 .wheel-container {
   position: relative;
   width: 300px;
@@ -43,8 +47,36 @@ input {
   border: 1px solid #ccc;
   border-radius: 5px;
 }
+
+input {
+  width: 160px;
+}
+
+span {
+  margin-right: 16px;
+}
+
 button:hover {
   background-color: #007bff;
   color: white;
   border: none;
+}
+
+.player-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.button-container {
+  display: flex;
+  gap: 16px;
+}
+
+.opacity-70 {
+  opacity: 30%;
+}
+
+.cursor-not-allowed {
+  cursor: not-allowed;
 }

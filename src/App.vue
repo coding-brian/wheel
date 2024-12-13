@@ -1,8 +1,6 @@
 <script setup>
 import { reactive, ref } from 'vue'
 const wheel = ref(null)
-const spinButton = ref(null)
-const startGameButton = ref(null)
 const participantInput = ref(null)
 
 const colors = [
@@ -13,14 +11,21 @@ const colors = [
   '#9966ff',
   '#ff9f40',
   '#c9cbcf',
-  '#000000',
+  '#ffffff',
 ]
+const buttonGroup = reactive({
+  start: {
+    isShow: true,
+  },
+  spin: {
+    isShow: false,
+  },
+})
 
 let segments = reactive([])
 let currentRotation = 0
-// let initialSegments = []
 
-function createWheelGradient(participantCount) {
+const createWheelGradient = (participantCount) => {
   const segmentAngle = 360 / participantCount
   const gradientStops = segments.map((segment, index) => {
     const startAngle = index * segmentAngle
@@ -31,21 +36,24 @@ function createWheelGradient(participantCount) {
   wheel.value.style.background = `conic-gradient(${gradientStops.join(', ')})`
 }
 
-function spinWheel() {
-  const randomSegmentIndex = Math.floor(Math.random() * segments.length + 1)
-  console.log('randomSegmentIndex', randomSegmentIndex)
+const spinWheel = () => {
+  if (!buttonGroup.spin.isShow) {
+    return
+  }
+
+  const selectedPlayer = Math.floor(Math.random() * segments.length + 1)
 
   const segmentAngle = 360 / segments.length
-  const targetRotation = -(randomSegmentIndex * segmentAngle - segmentAngle / 2 - 360 * 10) //轉動至少 10 圈
+  const targetRotation = -(selectedPlayer * segmentAngle - segmentAngle / 2 - 360 * 10) //轉動至少 10 圈
   currentRotation += targetRotation
-  console.log((currentRotation - 20) % 3600)
 
   wheel.value.style.transform = `rotate(${currentRotation}deg)`
 
   setTimeout(() => {
-    const selectedSegment = segments[randomSegmentIndex - 1]
-    alert(`選中：${selectedSegment.label}`)
-    segments.splice(randomSegmentIndex, 1)
+    const segmentIndex = selectedPlayer - 1
+    const selectedSegment = segments[segmentIndex]
+    alert(`選中：${selectedSegment.name}`)
+    segments.splice(segmentIndex, 1)
 
     if (segments.length > 1) {
       createWheelGradient(segments.length) // 更新輪盤
@@ -56,11 +64,11 @@ function spinWheel() {
   }, 4000)
 }
 
-function resetGame() {
+const resetGame = () => {
   wheel.value.style.transform = 'rotate(0deg)'
   wheel.value.style.background = '' // 清空背景
-  spinButton.value.style.display = 'none'
-  startGameButton.value.style.display = 'block'
+  buttonGroup.spin.isShow = false
+  buttonGroup.start.isShow = true
   participantInput.value = ''
   segments.splice(0, segments.length) // 恢復原始分片
 }
@@ -71,31 +79,33 @@ const start = () => {
     alert('請輸入有效的參與人數 (2-8)')
     return
   }
+
+  if (!buttonGroup.start.isShow) {
+    return
+  }
+
   buildSegment(participantCount)
 
   createWheelGradient(participantCount)
-  startGameButton.value.style.display = 'none'
-  spinButton.value.style.display = 'block'
+  buttonGroup.start.isShow = false
+  buttonGroup.spin.isShow = true
 }
 
 const buildSegment = (participantCount) => {
   const shuffledColors = [...colors].sort(() => Math.random() - 0.5).slice(0, participantCount)
   shuffledColors.forEach((color, index) => {
-    segments.push({ color, label: `玩家 ${index + 1}` })
+    segments.push({ color, name: `玩家 ${index + 1}` })
   })
 }
 </script>
 
 <template>
-  <div style="display: flex; justify-content: space-evenly">
-    <div v-for="segment in segments" :key="segment.color">
-      <span>{{ segment.label }}</span>
-      <div :style="{ width: '20px', height: '20px', 'background-color': segment.color }"></div>
-    </div>
-  </div>
-
   <div>
-    <span>輸入參與人數 (2-8):</span>
+    <div>
+      <button @click="resetGame">重置</button>
+    </div>
+
+    <span>輸入參與人數 (2-8)</span>
     <input
       type="number"
       min="2"
@@ -103,17 +113,42 @@ const buildSegment = (participantCount) => {
       placeholder="輸入參與人數 (2-8)"
       v-model="participantInput"
     />
-    <div>
-      <button id="startGameButton" @click="start" ref="startGameButton">開始遊戲</button>
+    <div class="player-container">
+      <div v-for="segment in segments" :key="segment.color">
+        <input
+          type="text"
+          name=""
+          id=""
+          v-model="segment.name"
+          :style="{ 'background-color': segment.color }"
+        />
+      </div>
     </div>
   </div>
   <div class="wheel-container">
     <div class="wheel" id="wheel" ref="wheel"></div>
     <div class="pointer"></div>
   </div>
-  <button id="spinButton" style="display: none" @click="spinWheel" ref="spinButton">
-    轉動轉盤
-  </button>
+  <div class="button-container">
+    <button
+      :class="{
+        'opacity-70': !buttonGroup.start.isShow,
+        'cursor-not-allowed': !buttonGroup.start.isShow,
+      }"
+      @click="start"
+    >
+      開始遊戲
+    </button>
+    <button
+      :class="{
+        'opacity-70': !buttonGroup.spin.isShow,
+        'cursor-not-allowed': !buttonGroup.spin.isShow,
+      }"
+      @click="spinWheel"
+    >
+      轉動轉盤
+    </button>
+  </div>
 </template>
 
 <style scoped></style>
