@@ -1,9 +1,18 @@
 <script setup>
 import { reactive, ref } from 'vue'
+import confetti from 'canvas-confetti'
+
 const wheel = ref(null)
 const participantInput = ref(null)
 const style = ref({
   transition: 'transform 4s cubic-bezier(0.25, 0.1, 0.25, 1)',
+})
+const notify = ref({
+  isShow: false,
+  message: 'test',
+  title: '',
+  isShowButton: true,
+  color: 'black',
 })
 
 const colors = [
@@ -28,6 +37,19 @@ const buttonGroup = reactive({
 let segments = reactive([])
 
 const createWheelGradient = (participantCount) => {
+  // 遊戲結束
+  if (segments.length <= 1) {
+    notify.value.title = '遊戲結束！1秒後重新開始！'
+    notify.value.message = ''
+    notify.value.isShow = true
+    notify.value.isShowButton = false
+    setTimeout(() => {
+      resetGame()
+      resetNotify()
+    }, 1000)
+    return
+  }
+
   const segmentAngle = 360 / participantCount
   const gradientStops = segments.map((segment, index) => {
     const startAngle = index * segmentAngle
@@ -40,7 +62,7 @@ const createWheelGradient = (participantCount) => {
   wheel.value.style.transform = `rotate(0deg)`
   setTimeout(() => {
     style.value.transition = 'transform 4s cubic-bezier(0.25, 0.1, 0.25, 1)'
-  }, 0)
+  }, 10)
 }
 
 const spinWheel = () => {
@@ -58,15 +80,18 @@ const spinWheel = () => {
   setTimeout(() => {
     const segmentIndex = selectedPlayer - 1
     const selectedSegment = segments[segmentIndex]
-    alert(`選中：${selectedSegment.name}`)
     segments.splice(segmentIndex, 1)
 
-    if (segments.length > 1) {
-      createWheelGradient(segments.length) // 更新輪盤
-    } else {
-      alert('遊戲結束！重新開始！')
-      resetGame()
-    }
+    confetti({
+      particleCount: 100,
+      spread: 70,
+      origin: { y: 0.6 },
+    })
+
+    notify.value.message = `${selectedSegment.name}`
+    notify.value.isShow = true
+    notify.value.title = '恭喜選中'
+    notify.value.color = selectedSegment.color
   }, 4000)
 }
 
@@ -101,6 +126,19 @@ const buildSegment = (participantCount) => {
   shuffledColors.forEach((color, index) => {
     segments.push({ color, name: `玩家 ${index + 1}` })
   })
+}
+
+const resetNotify = () => {
+  notify.value.isShow = false
+  notify.value.message = ''
+  notify.value.isShowButton = true
+  notify.value.title = ''
+  notify.value.color = 'black'
+}
+
+const confirm = () => {
+  resetNotify()
+  createWheelGradient(segments.length) // 更新輪盤
 }
 </script>
 
@@ -153,6 +191,19 @@ const buildSegment = (participantCount) => {
     >
       轉動轉盤
     </button>
+  </div>
+  <div class="notify-container" v-if="notify.isShow">
+    <div class="notify">
+      <p v-if="notify.title">
+        <span>{{ notify.title }}</span>
+      </p>
+      <span
+        :style="{ color: notify.color, 'font-size': '24px', 'font-weight': 'bold' }"
+        v-if="notify.message"
+        >{{ notify.message }}</span
+      >
+      <button @click="confirm" v-if="notify.isShowButton">確認</button>
+    </div>
   </div>
 </template>
 

@@ -26,7 +26,6 @@ body {
   position: relative;
   overflow: hidden;
   transform: rotate(0deg);
-  /* transition: transform 4s cubic-bezier(0.25, 0.1, 0.25, 1); */
 }
 .pointer {
   position: absolute;
@@ -36,8 +35,8 @@ body {
   width: 40px;
   height: 40px;
   background: url('./logo.png') no-repeat center / cover;
-  z-index: 10;
 }
+
 button,
 input {
   margin-top: 10px;
@@ -50,10 +49,6 @@ input {
 
 input {
   width: 160px;
-}
-
-span {
-  margin-right: 16px;
 }
 
 button:hover {
@@ -79,4 +74,25 @@ button:hover {
 
 .cursor-not-allowed {
   cursor: not-allowed;
+}
+
+.notify-container {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.notify {
+  background-color: whitesmoke;
+  border: black 2px solid;
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 15px 50px 15px 50px;
 }
