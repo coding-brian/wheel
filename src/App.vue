@@ -2,6 +2,9 @@
 import { reactive, ref } from 'vue'
 const wheel = ref(null)
 const participantInput = ref(null)
+const style = ref({
+  transition: 'transform 4s cubic-bezier(0.25, 0.1, 0.25, 1)',
+})
 
 const colors = [
   '#ff6384',
@@ -33,6 +36,11 @@ const createWheelGradient = (participantCount) => {
   })
 
   wheel.value.style.background = `conic-gradient(${gradientStops.join(', ')})`
+  style.value.transition = 'none'
+  wheel.value.style.transform = `rotate(0deg)`
+  setTimeout(() => {
+    style.value.transition = 'transform 4s cubic-bezier(0.25, 0.1, 0.25, 1)'
+  }, 0)
 }
 
 const spinWheel = () => {
@@ -44,9 +52,6 @@ const spinWheel = () => {
 
   const segmentAngle = 360 / segments.length
   const targetRotation = -(selectedPlayer * segmentAngle - segmentAngle / 2 - 360 * 10) //轉動至少 10 圈
-  console.log('segments', segments)
-  console.log('selectedPlayer,', selectedPlayer)
-  console.log('targetRotation,', targetRotation)
 
   wheel.value.style.transform = `rotate(${targetRotation}deg)`
 
@@ -58,7 +63,6 @@ const spinWheel = () => {
 
     if (segments.length > 1) {
       createWheelGradient(segments.length) // 更新輪盤
-      wheel.value.style.transform = `rotate(0deg)`
     } else {
       alert('遊戲結束！重新開始！')
       resetGame()
@@ -87,7 +91,6 @@ const start = () => {
   }
 
   buildSegment(participantCount)
-
   createWheelGradient(participantCount)
   buttonGroup.start.isShow = false
   buttonGroup.spin.isShow = true
@@ -128,7 +131,7 @@ const buildSegment = (participantCount) => {
     </div>
   </div>
   <div class="wheel-container">
-    <div class="wheel" id="wheel" ref="wheel"></div>
+    <div class="wheel" id="wheel" ref="wheel" :style="style"></div>
     <div class="pointer"></div>
   </div>
   <div class="button-container">
